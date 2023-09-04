@@ -1,0 +1,32 @@
+{
+  "name": "express-typescript-server",
+  "version": "1.0.0",
+  "description": "Node JS Server using Express and Typescript",
+  "main": "/dist/index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node ./dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q ./dist/\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/or-abdillh/express-typescript-server.git"
+  },
+  "author": "Oka R. Abdillah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/or-abdillh/express-typescript-server/issues"
+  },
+  "homepage": "https://github.com/or-abdillh/express-typescript-server#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.5.9",
+    "concurrently": "^8.2.1",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.2.2"
+  }
+}
