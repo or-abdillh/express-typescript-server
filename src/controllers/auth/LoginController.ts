@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client"
-import { body, validationResult } from "express-validator"
+import { body, validationResult, ValidationChain } from "express-validator"
 import { Response, Request } from "express"
 import { compare } from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import { User } from "@/ts/interfaces/user.interface"
 
 dotenv.config()
 
@@ -23,12 +24,6 @@ type Payload = {
     email: string
 }
 
-type Authenticated = {
-    name: string
-    password: string
-    email: string
-}
-
 export const LoginController = {
 
     // validation rules
@@ -37,7 +32,7 @@ export const LoginController = {
         body('password').notEmpty(),
     ],
 
-    async emailAuthenticated(email: string) {
+    async emailAuthenticated(email: string): Promise<User | null> {
 
         return await User.findFirst({ where: { email } })
     },
@@ -47,7 +42,7 @@ export const LoginController = {
         return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' })
     },
 
-    userAuthenticated(password: string, authenticated: Authenticated, res: Response) {
+    userAuthenticated(password: string, authenticated: User, res: Response): void {
 
         compare(password, authenticated.password, (err, same): Response => {
             if (same) {
@@ -102,6 +97,6 @@ export const LoginController = {
         }
 
         // comparing password
-        LoginController.userAuthenticated(password, isEmailAuthenticated as Authenticated, res)
+        LoginController.userAuthenticated(password, isEmailAuthenticated as User, res)
     }
 }
