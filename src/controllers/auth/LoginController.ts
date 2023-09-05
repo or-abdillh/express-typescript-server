@@ -3,10 +3,11 @@ import { body, ValidationChain } from "express-validator"
 import { Response, Request } from "express"
 import { compare } from "bcrypt"
 import jwt from "jsonwebtoken"
-import dotenv from "dotenv"
+import { useAppConfig } from "@config/app.config"
 import { IUser } from "@/ts/interfaces/user.interface"
 
-dotenv.config()
+// config
+const config = useAppConfig()
 
 // model
 const { user: User } = new PrismaClient()
@@ -33,10 +34,6 @@ const rules: Array<ValidationChain> = [
     body('password').notEmpty().withMessage('Password is required'),
 ]
 
-// constanta
-const JWT_EXPIRES = '2h'
-const JWT_SECRET = process.env.JWT_SECRET!
-
 export const LoginController = {
 
     // validation rules
@@ -49,7 +46,7 @@ export const LoginController = {
 
     generateToken(payload: Payload): string {
 
-        return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES })
+        return jwt.sign(payload, config.jwtSecret, { expiresIn: config.jwtExpires })
     },
 
     userAuthenticated(password: string, authenticated: IUser, res: Response): void {

@@ -43,7 +43,6 @@
   },
   "_moduleAliases": {
     "@": "dist/src",
-    "@controller": "dist/src/controllers",
-    "@ts": "dist/src/ts"
+    "@config": "dist/config"
   }
 }

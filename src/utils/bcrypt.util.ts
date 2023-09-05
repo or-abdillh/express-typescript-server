@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt'
+import { useAppConfig } from '@config/app.config'
 
-// initial
-const SALT_ROUNDS = 10
+const config = useAppConfig()
 
 export const hash = (password: string): Promise<string> => {
 
-    return bcrypt.genSalt(SALT_ROUNDS)
+    return bcrypt.genSalt(config.bcryptSaltRounds)
         .then(salt => bcrypt.hash(password, salt))
         .then(hash => hash)
 }

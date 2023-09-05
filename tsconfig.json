@@ -7,13 +7,12 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@ts/*": ["src/ts/*"],
-      "@controller/*": ["src/controllers/*"],
+      "@config/*": ["config/*"]
     },
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "index.ts"],
+  "include": ["src/**/*.ts", "config/**/*.ts", "index.ts"],
   "exclude": ["node_modules"]
 }
