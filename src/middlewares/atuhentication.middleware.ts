@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction, Application } from "express"
+import { Response, Request, NextFunction } from "express"
 import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
 
