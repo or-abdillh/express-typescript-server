@@ -4,6 +4,7 @@ import { LoginController } from "@/controllers/auth/LoginController"
 import { HomeController } from "@/controllers/HomeController"
 import { UserController } from "@/controllers/UserController"
 import { useValidator } from "@/middlewares/validator.middleware"
+import { useRole } from "@/middlewares/role.middleware"
 
 export const router = (app: Express) => {
 
@@ -14,6 +15,7 @@ export const router = (app: Express) => {
     app.post('/login', LoginController.rules, useValidator, LoginController.authentication)
 
     // user
+    app.use('/api/user', useRole.guard('user'))
     app.route('/api/user')
         .get(UserController.index)
 }

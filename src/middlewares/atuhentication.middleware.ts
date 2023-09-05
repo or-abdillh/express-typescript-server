@@ -1,10 +1,9 @@
 import { Response, Request, NextFunction } from "express"
 import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
+import { useHeader } from "@/utils/header.util"
 
 dotenv.config()
-
-const TOKEN_SPLITTER = 'Bearer'
 
 export const useAuthentication = (req: Request, res: Response, next: NextFunction): any => {
 
@@ -16,7 +15,7 @@ export const useAuthentication = (req: Request, res: Response, next: NextFunctio
     }
 
     // get token from headers
-    const token: string = req.headers?.authorization.split(TOKEN_SPLITTER)[1].trim()
+    const token: string = useHeader.getTokenFrom(req) as string
 
     // verify the token
     jwt.verify(token, process.env.JWT_SECRET!, (err, decoded) => {

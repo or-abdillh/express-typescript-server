@@ -2,15 +2,8 @@ import dotenv from "dotenv"
 
 dotenv.config({ path: process.cwd() + '/.env' })
 
-type AppConfig = {
-    port: number
-    jwtSecret: string
-    jwtExpires: string
-    bcryptSaltRounds: number
-}
-
 // exported config
-export const useAppConfig = (): AppConfig => {
+export const useAppConfig = () => {
     return {
         // server
         port: process.env.PORT ?? 8000,
@@ -20,6 +13,13 @@ export const useAppConfig = (): AppConfig => {
         jwtExpires: '2h',
 
         // Bcrypt
-        bcryptSaltRounds: 10
-    } as AppConfig
+        bcryptSaltRounds: 10,
+
+        // headers authorization
+        headersAuthorization: {
+
+            key: 'authorization',
+            spliter: 'Bearer'
+        }
+    }
 }
