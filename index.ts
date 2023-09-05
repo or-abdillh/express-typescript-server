@@ -1,21 +1,22 @@
+// cores
 import "module-alias/register"
 import dotenv from 'dotenv'
 import { PrismaClient } from "@prisma/client"
-
-dotenv.config()
-
-// cores
 import express, { Express } from "express"
 import { router } from "@/routes/route"
 import bodyParser from "body-parser"
+import { useAuthentication } from "@/middlewares/atuhentication.middleware"
 
 // initial
+dotenv.config()
+
 const app: Express = express()
 const PORT = process.env.PORT ?? 8000
 const prismaClient = new PrismaClient()
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use('/api/', useAuthentication)
 
 // routes
 router(app)

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import { validationResult } from "express-validator"
 
-export const validator = (req: Request, res: Response, next: NextFunction) => {
+export const useValidator = (req: Request, res: Response, next: NextFunction) => {
 
     // get results from validations rule
     const validations = validationResult(req)
