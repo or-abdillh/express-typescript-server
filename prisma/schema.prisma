@@ -10,10 +10,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String
   password  String
+  role      Role     @relation(fields: [roleId], references: [id])
+  roleId    Int      @default(1)
+  Post      Post[]
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Post {
+  id           Int            @id @default(autoincrement())
+  title        String
+  content      String
+  slug         String         @unique
+  isPublished  Boolean        @default(false)
+  author       User           @relation(fields: [authorId], references: [id])
+  authorId     Int
+  CategoryPost CategoryPost[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+}
+
+model Category {
+  id           Int            @id @default(autoincrement())
+  name         String
+  slug         String         @unique
+  CategoryPost CategoryPost[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+}
+
+model CategoryPost {
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime @default(now())
+
+  @@id([postId, categoryId])
 }
