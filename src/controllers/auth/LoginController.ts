@@ -4,7 +4,7 @@ import { Response, Request } from "express"
 import { compare } from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
-import { User } from "@/ts/interfaces/user.interface"
+import { IUser } from "@/ts/interfaces/user.interface"
 
 dotenv.config()
 
@@ -24,15 +24,21 @@ type Payload = {
     email: string
 }
 
+// form validation
+const rules: Array<ValidationChain> = [
+    body('email')
+        .notEmpty().withMessage('Email is required')
+        .isEmail().withMessage('Incorrectly email adress format'),
+
+    body('password').notEmpty().withMessage('Password is required'),
+]
+
 export const LoginController = {
 
     // validation rules
-    rules: [
-        body('email').isEmail(),
-        body('password').notEmpty(),
-    ],
+    rules,
 
-    async emailAuthenticated(email: string): Promise<User | null> {
+    async emailAuthenticated(email: string): Promise<IUser | null> {
 
         return await User.findFirst({ where: { email } })
     },
@@ -42,7 +48,7 @@ export const LoginController = {
         return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' })
     },
 
-    userAuthenticated(password: string, authenticated: User, res: Response): void {
+    userAuthenticated(password: string, authenticated: IUser, res: Response): void {
 
         compare(password, authenticated.password, (err, same): Response => {
             if (same) {
@@ -62,7 +68,7 @@ export const LoginController = {
                 return res.status(403).send({
                     status: false,
                     message: 'invalid credential',
-                    errors: [{ field: 'password', msg: 'password uncorrectly' }]
+                    errors: [{ type: 'field', path: 'password', msg: 'password uncorrectly', value: password }]
                 })
             }
         })
@@ -70,17 +76,6 @@ export const LoginController = {
 
     // main
     async authentication(req: LoginRequest, res: Response): Promise<Response | undefined> {
-
-        // check
-        const validations = validationResult(req)
-
-        if (!validations.isEmpty()) {
-            return res.status(401).send({
-                status: false,
-                message: 'Validation body error',
-                errors: validations.array()
-            })
-        }
 
         // parse body
         const { email, password } = req.body
@@ -92,11 +87,11 @@ export const LoginController = {
             return res.status(404).send({
                 status: false,
                 message: 'not found',
-                errors: [{ field: 'email', msg: 'cannot find user with this email' }]
+                errors: [{ type: 'field', path: 'email', msg: 'cannot find user with this email', value: email }]
             })
         }
 
         // comparing password
-        LoginController.userAuthenticated(password, isEmailAuthenticated as User, res)
+        LoginController.userAuthenticated(password, isEmailAuthenticated, res)
     }
 }

@@ -1,54 +1,52 @@
 import { PrismaClient } from "@prisma/client"
 import { Request, Response } from "express"
-import { body, validationResult } from "express-validator"
+import { ValidationChain, body } from "express-validator"
 import { hash } from "@/utils/bcrypt.util"
 
 // Models
 const { user: User } = new PrismaClient()
 
+// form validations
+const rules: Array<ValidationChain> = [
+
+    // email
+    body('email')
+        .isEmail().withMessage('Incorrect email address format')
+        .custom(async (email: string) => {
+            const isEmailAlready = await User.findFirst({ where: { email } })
+
+            if (isEmailAlready) {
+                throw new Error('Email already in use')
+            }
+        }),
+
+    // password
+    body('password').notEmpty().isLength({ min: 8 }).withMessage('Password minimum length 8 characters'),
+    body('password_confirmation')
+        .notEmpty().withMessage('Password confirmation is required')
+        .custom(async (password: string, { req }) => {
+            if (password !== req.body.password) {
+                throw new Error('Password confirmation is not match')
+            }
+        }),
+
+    // name
+    body('name').notEmpty().withMessage('Field name is required'),
+]
+
+// main controller
 export const RegisterController = {
 
     // validation rules
-    rules: [
-        body('email').isEmail(),
-        body('password').notEmpty(),
-        body('name').notEmpty(),
-    ],
-
-    // duplicate email taken checker
-    async isUserDuplicated(email: string): Promise<boolean> {
-
-        const user = await User.findFirst({ where: { email } })
-
-        return user ? true : false
-    },
+    rules,
 
     // register new user
-    async register(req: Request, res: Response) {
-
-        // checks
-        const validations = validationResult(req)
-
-        if (!validations.isEmpty()) {
-            return res.status(401).send({
-                status: false,
-                message: 'Validation body error',
-                errors: validations.array()
-            })
-        }
+    async register(req: Request, res: Response): Promise<Response | undefined> {
 
         // parse body request
         const { email, password, name } = req.body
 
         try {
-            // duplicate checker
-            if (await RegisterController.isUserDuplicated(email)) {
-                return res.status(403).send({
-                    status: false,
-                    message: 'Email has already taken by different user'
-                })
-            }
-
             // creating
             const user: any = await User.create({
                 data: {
@@ -59,13 +57,12 @@ export const RegisterController = {
             })
 
             // create response
-            res.status(201).send({
+            return res.status(201).send({
                 status: true,
                 message: 'User has created',
                 data: { user }
             })
         } catch (err) {
-            console.log(err)
             return res.status(501).send({
                 status: false,
                 message: 'Internal Server Error',
